@@ -1,4 +1,95 @@
-# ClearVoice
+# myClearerVoice
+
+这是ClearerVoice语音增强工具的轻量版本，从ModelScope的ClearerVoice-Studio项目移植而来。
+
+## 主要功能
+
+- 语音增强（Speech Enhancement）：去除背景噪声，提高语音清晰度
+- 语音分离（Speech Separation）：从混合音频中分离出不同说话人的语音
+- 语音超分辨率（Speech Super Resolution）：提高语音的采样率和质量
+- 音视频协同增强（Audio-Visual Enhancement）：利用视频和音频共同提高语音质量
+
+## 项目结构
+
+```
+ClearerVoice_Minimal/
+  ├── clearvoice/                 # 核心代码库
+  │   ├── config/                 # 配置文件，用于各种模型的推理
+  │   ├── dataloader/             # 数据加载模块
+  │   ├── models/                 # 模型实现
+  │   │   ├── av_mossformer2_tse/ # 音视频同步增强模型
+  │   │   ├── frcrn_se/           # FRCRN 语音增强模型
+  │   │   ├── mossformer2_se/     # MossFormer2 语音增强模型
+  │   │   ├── mossformer2_sr/     # MossFormer2 语音超分辨率模型
+  │   │   ├── mossformer2_ss/     # MossFormer2 语音分离模型
+  │   │   └── mossformer_gan_se/  # MossFormerGAN 语音增强模型
+  │   └── utils/                  # 实用工具函数
+  ├── demo.py                     # 命令行演示脚本
+  ├── demo_with_more_comments.py  # 带有详细注释的演示脚本
+  └── streamlit_app.py            # Streamlit 网页应用界面
+```
+
+## 使用方法
+
+### 1. 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. 下载模型
+
+请从ModelScope下载ClearerVoice模型权重文件，放置于 `checkpoints/` 目录下：
+
+- FRCRN_SE_16K/
+- MossFormer2_SE_48K/
+- MossFormer2_SS_16K/
+- MossFormerGAN_SE_16K/
+
+### 3. 运行网页应用
+
+```bash
+streamlit run streamlit_app.py
+```
+
+### 4. 命令行使用
+
+```python
+# 导入ClearVoice类
+from clearvoice.networks import ClearVoice
+
+# 初始化模型
+model = ClearVoice('MossFormer2_SE_48K')
+
+# 处理音频
+enhanced_audio, noise = model(input_path='path/to/audio.wav', online_write=False)
+
+# 自定义输出路径
+model.write(enhanced_audio, '/path/to/enhanced.wav')
+model.write(noise, '/path/to/noise.wav')
+```
+
+## 自定义输出路径
+
+项目支持两种使用方式：
+
+1. `online_write=True`: 处理的同时自动写出文件到默认路径
+2. `online_write=False`: 处理后返回numpy数组，可以由用户自定义写出路径
+
+```python
+# 方式一：直接处理并写出
+model(input_path='input.wav', online_write=True, output_path='output_dir')
+
+# 方式二：获取处理结果后自定义输出
+enhanced, noise = model(input_path='input.wav', online_write=False)
+model.write(enhanced, 'my_custom_path/enhanced.wav')
+model.write(noise, 'my_custom_path/noise.wav')
+```
+
+## 注意事项
+
+- 此版本已移除大型模型文件，使用前需要下载模型
+- 模型文件总大小约1.2GB，请确保有足够的磁盘空间
 
 ## 👉🏻[HuggingFace Space Demo](https://huggingface.co/spaces/alibabasglab/ClearVoice)👈🏻 |  👉🏻[ModelScope Space Demo](https://modelscope.cn/studios/iic/ClearerVoice-Studio)👈🏻 
 
